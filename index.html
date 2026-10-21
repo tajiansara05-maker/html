@@ -1,0 +1,756 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>شکار مضارع</title>
+    
+    <!-- بارگذاری غیرهمزمان فونت B Nazanin -->
+    <link rel="stylesheet" href="https://cdn.fontcdn.ir/Font/Persian/BNazanin/BNazanin.css" media="print" onload="this.media='all'">
+    
+    <style>
+        /* === فراخوانی فونت شکسته برای نام سازنده === */
+        @font-face {
+            font-family: 'Dima Shekasteh';
+            src: url('https://cdn.jsdelivr.net/gh/rokhafrooz1960-debug/my_fonts/Dima%20Shekasteh%202.ttf') format('truetype');
+            font-display: swap;
+        }
+
+        /* === تنظیمات پایه و Reset === */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --primary: #4CAF50;
+            --primary-dark: #388E3C;
+            --secondary: #FF9800;
+            --secondary-dark: #F57C00;
+            --bg-color: #E8F5E9;
+            --card-bg: #ffffff;
+            --text-dark: #263238;
+            --text-light: #ffffff;
+            --shadow: 0 8px 16px rgba(0,0,0,0.15);
+            --border-radius: 20px;
+        }
+
+        body {
+            font-family: 'B Nazanin', Tahoma, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            overflow: hidden; /* جلوگیری کامل از اسکرول */
+            height: 100dvh;
+            width: 100vw;
+            user-select: none;
+            touch-action: none; /* جلوگیری از رفتار دیفالت لمسی موبایل برای اسکرول */
+        }
+
+        /* === دکمه شناور سراسری صدا === */
+        #global-audio-btn {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 9999;
+            background: rgba(255, 255, 255, 0.9);
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 22px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            cursor: pointer;
+            border: 2px solid #0288D1;
+            transition: transform 0.2s ease, background 0.2s;
+        }
+        #global-audio-btn:active {
+            transform: scale(0.85);
+            background: #E1F5FE;
+        }
+
+        /* === سیستم صفحات (SPA) === */
+        .page {
+            display: none;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: absolute;
+            top: 0;
+            left: 0;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .page.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* === طراحی صفحه اول (شروع) === */
+        #page-1 {
+            background: radial-gradient(circle at center, #E0F7FA, #B2EBF2);
+            justify-content: space-evenly;
+            align-items: center;
+            padding: 2vh 4vw;
+            position: relative;
+        }
+
+        .decor {
+            position: absolute;
+            font-size: clamp(20px, 4vh, 40px);
+            opacity: 0.6;
+            z-index: 1;
+        }
+        .d2 { bottom: 15%; left: 10%; }
+        .d3 { top: 20%; left: 15%; }
+        .d4 { bottom: 20%; right: 15%; }
+
+        .p1-content {
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+            height: 100%;
+            justify-content: space-between;
+        }
+
+        .game-title {
+            font-size: clamp(32px, 8vh, 60px);
+            font-weight: bold;
+            color: #D84315;
+            text-shadow: 2px 3px 0px #fff, 4px 6px 10px rgba(0,0,0,0.2);
+            margin-top: 1vh;
+            text-align: center;
+        }
+
+        .circles-row {
+            display: flex;
+            gap: clamp(15px, 4vw, 30px);
+            margin: 1vh 0;
+        }
+
+        .circle-img {
+            width: clamp(70px, 16vh, 140px);
+            height: clamp(70px, 16vh, 140px);
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid white;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            background: white;
+        }
+
+        .interactive-section {
+            background: rgba(255, 255, 255, 0.6);
+            padding: clamp(10px, 2vh, 20px);
+            border-radius: var(--border-radius);
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: clamp(8px, 1.5vh, 15px);
+            width: 100%;
+            max-width: 350px;
+        }
+
+        .input-box {
+            width: 100%;
+            padding: clamp(8px, 2vh, 15px);
+            font-size: clamp(16px, 3vh, 20px);
+            text-align: center;
+            border: 2px solid #81D4FA;
+            border-radius: 15px;
+            font-family: inherit;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+            transition: all 0.2s;
+        }
+        .input-box:focus {
+            outline: none;
+            border-color: #0288D1;
+            box-shadow: 0 0 10px rgba(2,136,209,0.3);
+        }
+
+        /* باکس اختصاصی آهنگ پس زمینه */
+        .music-box {
+            background: #ffffff;
+            border: 2px solid #4FC3F7;
+            border-radius: 15px;
+            padding: clamp(8px, 1.5vh, 12px);
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+        }
+        .music-box:hover {
+            background: #E1F5FE;
+            border-color: #0288D1;
+        }
+
+        .music-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: clamp(15px, 2.8vh, 18px);
+            font-weight: bold;
+            color: #0277BD;
+            cursor: pointer;
+            width: 100%;
+            margin: 0;
+        }
+        .music-toggle input {
+            width: 20px;
+            height: 20px;
+            accent-color: #0288D1;
+            cursor: pointer;
+        }
+
+        .btn-start {
+            background: linear-gradient(145deg, #FFB300, #FF8F00);
+            color: white;
+            font-size: clamp(18px, 3.5vh, 28px);
+            font-weight: bold;
+            border: none;
+            border-radius: 30px;
+            padding: clamp(10px, 2vh, 18px) clamp(20px, 5vw, 50px);
+            cursor: pointer;
+            box-shadow: 0 8px 15px rgba(255, 143, 0, 0.4);
+            transition: transform 0.1s, box-shadow 0.1s;
+            font-family: inherit;
+            width: 100%;
+        }
+        .btn-start:active {
+            transform: translateY(4px) scale(0.98);
+            box-shadow: 0 4px 8px rgba(255, 143, 0, 0.4);
+        }
+
+        .producer-info {
+            font-family: 'Dima Shekasteh', 'B Nazanin', Tahoma, Arial, sans-serif;
+            font-size: clamp(22px, 4.5vh, 32px); 
+            color: #37474F;
+            text-align: center;
+            line-height: 1.4;
+            margin-bottom: 1.5vh;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        /* === طراحی صفحه دوم (درسنامه) === */
+        #page-2 {
+            background: #FFF3E0;
+            padding: 2vh 4vw;
+            align-items: center;
+            justify-content: center;
+        }
+        .lesson-container {
+            flex: 1;
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        .lesson-img {
+            max-width: 100%;
+            max-height: 70vh;
+            object-fit: contain;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+        }
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 2vh;
+            width: 100%;
+            justify-content: center;
+        }
+        .btn-nav {
+            padding: 10px 25px;
+            font-size: clamp(16px, 3vh, 20px);
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            font-family: inherit;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+        .btn-green { background: var(--primary); color: white; }
+        .btn-gray { background: #9E9E9E; color: white; }
+
+        /* === طراحی صفحه سوم (بازی) === */
+        #page-3 {
+            background: #F3E5F5;
+            padding: 2vh 2vw; 
+        }
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 8px 15px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            font-size: clamp(14px, 2.5vh, 18px);
+            font-weight: bold;
+            margin-bottom: 1.5vh;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .timer-box {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #D32F2F;
+        }
+        
+        .question-card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: clamp(10px, 2vh, 25px) clamp(10px, 3vw, 25px);
+            display: flex;
+            flex-direction: column;
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto; 
+            overflow: hidden; 
+        }
+        .question-text {
+            font-size: clamp(18px, 4vh, 26px);
+            text-align: center;
+            margin-bottom: 2vh;
+            color: #1A237E;
+            font-weight: bold;
+            line-height: 1.4;
+        }
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: clamp(8px, 1.5vh, 12px);
+            margin-bottom: 1vh; 
+        }
+        .option-btn {
+            background: #FAFAFA;
+            border: 2px solid #E0E0E0;
+            padding: clamp(8px, 1.8vh, 16px); 
+            border-radius: 12px;
+            font-size: clamp(16px, 3.2vh, 22px);
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: right;
+            padding-right: 20px;
+            position: relative;
+        }
+        .option-btn:hover { background: #EEEEEE; }
+        .option-btn.correct { background: #C8E6C9; border-color: #4CAF50; color: #2E7D32; font-weight: bold; }
+        .option-btn.wrong { background: #FFCDD2; border-color: #F44336; color: #C62828; }
+        .option-btn:disabled { cursor: not-allowed; opacity: 0.8; }
+
+        .feedback-box {
+            text-align: center;
+            min-height: 5vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(15px, 2.8vh, 20px);
+            font-weight: bold;
+            margin-top: 0.5vh;
+        }
+        .btn-next-q {
+            display: none;
+            background: #0288D1;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 15px;
+            font-size: clamp(16px, 3vh, 20px);
+            font-weight: bold;
+            font-family: inherit;
+            cursor: pointer;
+            margin: 1vh auto 0;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        /* === طراحی صفحه چهارم (نتایج) === */
+        #page-4 {
+            background: #E8EAF6;
+            padding: 2vh 4vw;
+            overflow-y: auto; 
+            height: 100dvh;
+            display: none;
+            touch-action: auto;
+        }
+        #page-4.active { display: block; }
+        .result-container {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            max-width: 600px;
+            margin: 0 auto 4vh;
+            text-align: center;
+        }
+        .res-title { font-size: clamp(24px, 5vh, 32px); color: #FF8F00; margin-bottom: 15px; }
+        .res-score { font-size: clamp(30px, 6vh, 40px); color: #2E7D32; font-weight: bold; margin: 15px 0; }
+        .res-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        .res-table th, .res-table td { padding: 10px; border: 1px solid #E0E0E0; font-size: clamp(14px, 2.5vh, 18px); }
+        .res-table th { background: #F5F5F5; }
+
+        /* === استایل‌های پرینت === */
+        @media print {
+            body * { visibility: hidden; }
+            #page-4, #page-4 * { visibility: visible; }
+            #page-4 { position: absolute; left: 0; top: 0; padding: 0; overflow: visible; background: white; }
+            .no-print { display: none !important; }
+            .result-container { box-shadow: none; max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- دکمه شناور مدیریت صدا (همیشه در دسترس) -->
+    <div id="global-audio-btn" onclick="toggleMusic()">🔇</div>
+
+    <!-- صداها -->
+    <audio id="bgMusic" src="https://s11.uupload.ir/files/09118740177/instrumental-music-content-instagram-4-1.mp3?play" preload="none" loop></audio>
+    <audio id="correctSound" src="https://s25.uupload.ir/files/09118740177/effects-and-cheering-sound1(128).mp3?play" preload="none"></audio>
+    <audio id="wrongSound" src="https://s25.uupload.ir/files/09118740177/Sad%20Trombone%20Wah%20Wah%20Wah%20Fail%20Sound%20Effect.mp3?play" preload="none"></audio>
+
+    <div id="app">
+        <!-- ================= صفحه 1: شروع ================= -->
+        <div id="page-1" class="page active">
+            <div class="decor d2">🔎</div>
+            <div class="decor d3">⭐</div>
+            <div class="decor d4">🧭</div>
+            
+            <div class="p1-content">
+                <h1 class="game-title">شکار مضارع</h1>
+                
+                <div class="circles-row">
+                    <img src="https://my.uupload.ir/dl/0jkGejmG" alt="لوگو" class="circle-img" loading="lazy">
+                    <img src="https://my.uupload.ir/dl/VXwMyXao" alt="تصویر اصلی" class="circle-img" loading="lazy">
+                </div>
+
+                <div class="interactive-section">
+                    <input type="text" id="studentName" class="input-box" placeholder="👤 نام خود را وارد کنید">
+                    
+                    <div class="music-box">
+                        <label class="music-toggle">
+                            <input type="checkbox" id="musicCheck" checked>
+                            🎵 پخش آهنگ پس‌زمینه
+                        </label>
+                    </div>
+
+                    <button class="btn-start" onclick="startGame()">🚀 شروع شکار مضارع</button>
+                </div>
+
+                <div class="producer-info">
+                    تهیه کننده ساراتاجیان<br>
+                    دبیر عربی متوسطه اول -شاهرود -دبیرستان کوثر
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= صفحه 2: درسنامه ================= -->
+        <div id="page-2" class="page">
+            <div class="lesson-container">
+                <h2 style="text-align: center; color:#E65100; margin-bottom: 1vh;">📚 مطالعه درسنامه</h2>
+                <img src="https://my.uupload.ir/dl/6EAjNnNL" alt="درسنامه" class="lesson-img" loading="lazy">
+                
+                <div class="nav-buttons">
+                    <button class="btn-nav btn-gray" onclick="goToPage(1)">⬅️ بازگشت</button>
+                    <button class="btn-nav btn-green" onclick="goToPage(3)">🎯 شروع بازی</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= صفحه 3: بازی ================= -->
+        <div id="page-3" class="page">
+            <div class="game-header">
+                <span id="ui-stage">🟢 مرحله ۱</span>
+                <span id="ui-score">امتیاز: ۰</span>
+                <span class="timer-box">⏱️ <span id="ui-timer">۱۰</span></span>
+            </div>
+            
+            <div class="question-card">
+                <div id="ui-progress" style="text-align: center; color: #757575; font-size: 14px; margin-bottom: 1vh;">سؤال ۱ از ۱۵</div>
+                <div id="ui-question" class="question-text">متن سوال</div>
+                
+                <div id="ui-options" class="options-grid">
+                    <!-- گزینه‌ها توسط JS ساخته می‌شوند -->
+                </div>
+
+                <div id="ui-feedback" class="feedback-box"></div>
+                <!-- این دکمه حالا بلافاصله زیر سوال و گزینه‌ها نمایش داده می‌شود -->
+                <button id="ui-next-btn" class="btn-next-q" onclick="nextQuestion()">سوال بعدی ➡️</button>
+            </div>
+        </div>
+
+        <!-- ================= صفحه 4: نتایج ================= -->
+        <div id="page-4" class="page">
+            <div class="result-container">
+                <h2 class="res-title">🏆 کارنامه نهایی</h2>
+                <p style="font-size: 20px;">شکارچی قهرمان: <b id="res-name" style="color: #0288D1;"></b></p>
+                
+                <div class="res-score">امتیاز کل: <span id="res-total">۰</span> / ۳۰۰</div>
+                
+                <table class="res-table">
+                    <tr><th>مرحله</th><th>امتیاز کسب شده</th></tr>
+                    <tr><td>🟢 مرحله ۱ (سوال ۱-۵)</td><td id="res-s1">۰ / ۵۰</td></tr>
+                    <tr><td>🟡 مرحله ۲ (سوال ۶-۱۰)</td><td id="res-s2">۰ / ۱۰۰</td></tr>
+                    <tr><td>🔴 مرحله ۳ (سوال ۱۱-۱۵)</td><td id="res-s3">۰ / ۱۵۰</td></tr>
+                </table>
+
+                <div style="margin-bottom: 20px;">
+                    <p>پاسخ‌های صحیح: <b id="res-correct" style="color:green">۰</b> | پاسخ‌های نادرست: <b id="res-wrong" style="color:red">۰</b></p>
+                    <p>درصد موفقیت: <b id="res-percent">۰٪</b></p>
+                    <p id="res-msg" style="font-weight:bold; margin-top:10px; color:#E65100;"></p>
+                </div>
+
+                <div class="nav-buttons no-print">
+                    <button class="btn-nav btn-gray" onclick="window.print()">🖨️ چاپ کارنامه</button>
+                    <button class="btn-nav btn-green" onclick="restartGame()">🔄 شروع دوباره</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= اسکریپت و منطق بازی ================= -->
+    <script>
+        const questions = [
+            { stage: "🟢 مرحله ۱ | شروع ماجراجویی", pts: 10, q: "کدام گزینه «فعل مضارع» است؟", opts: ["فَعَلْتُ", "فَعَلْتَ", "أَفْعَلُ", "فَعَلَ"], ans: 2 },
+            { stage: "🟢 مرحله ۱ | شروع ماجراجویی", pts: 10, q: "معنی «أَفْعَلُ» کدام است؟", opts: ["من انجام دادم", "من انجام می‌دهم", "تو انجام می‌دهی", "او انجام می‌دهد"], ans: 1 },
+            { stage: "🟢 مرحله ۱ | شروع ماجراجویی", pts: 10, q: "کدام گزینه برای «من» به کار می‌رود؟", opts: ["أَفْعَلُ", "تَفْعَلُ", "تَفْعَلِينَ", "فَعَلْتَ"], ans: 0 },
+            { stage: "🟢 مرحله ۱ | شروع ماجراجویی", pts: 10, q: "جمله «أَنَا أَكْتُبُ بِالْقَلَمِ» یعنی چه؟", opts: ["من با خودکار نوشتم.", "تو با خودکار می‌نویسی.", "من با خودکار می‌نویسم.", "او با خودکار نوشت."], ans: 2 },
+            { stage: "🟢 مرحله ۱ | شروع ماجراجویی", pts: 10, q: "در کدام گزینه فعل مضارع به کار رفته است؟", opts: ["أَنَا فَعَلْتُ", "أَنَا أَفْعَلُ", "أَنْتَ فَعَلْتَ", "أَنْتِ فَعَلْتِ"], ans: 1 },
+            
+            { stage: "🟡 مرحله ۲ | شکار ضمیر و فعل", pts: 20, q: "برای «أَنْتَ» کدام فعل مناسب است؟", opts: ["أَفْعَلُ", "تَفْعَلُ", "تَفْعَلِينَ", "فَعَلْتُ"], ans: 1 },
+            { stage: "🟡 مرحله ۲ | شکار ضمیر و فعل", pts: 20, q: "برای «أَنْتِ» کدام فعل مضارع درست است؟", opts: ["أَفْعَلُ", "تَفْعَلُ", "تَفْعَلِينَ", "فَعَلْتِ"], ans: 2 },
+            { stage: "🟡 مرحله ۲ | شکار ضمیر و فعل", pts: 20, q: "کدام گزینه با «أَنْتِ» هماهنگ است؟", opts: ["أَنْتِ تَفْعَلُ", "أَنْتِ أَفْعَلُ", "أَنْتِ تَفْعَلِينَ", "أَنْتِ فَعَلَ"], ans: 2 },
+            { stage: "🟡 مرحله ۲ | شکار ضمیر و فعل", pts: 20, q: "«أَنْتَ تَفْعَلُ» یعنی:", opts: ["من انجام می‌دهم.", "تو (پسر) انجام می‌دهی.", "تو (دختر) انجام می‌دهی.", "من انجام دادم."], ans: 1 },
+            { stage: "🟡 مرحله ۲ | شکار ضمیر و فعل", pts: 20, q: "«أَنْتِ تَفْعَلِينَ» یعنی:", opts: ["تو (پسر) انجام می‌دهی.", "من انجام می‌دهم.", "تو (دختر) انجام می‌دهی.", "تو (دختر) انجام دادی."], ans: 2 },
+            
+            { stage: "🔴 مرحله ۳ | چالش بزرگ 🏆", pts: 30, q: "کدام گزینه از نظر ضمیر و فعل درست است؟", opts: ["أَنَا تَفْعَلُ", "أَنْتَ أَفْعَلُ", "أَنْتِ تَفْعَلِينَ", "أَنَا تَفْعَلِينَ"], ans: 2 },
+            { stage: "🔴 مرحله ۳ | چالش بزرگ 🏆", pts: 30, q: "کدام گزینه «فعل مضارع» و «ترجمه درست» دارد؟", opts: ["أَفْعَلُ ← من انجام می‌دهم.", "تَفْعَلُ ← من انجام می‌دهم.", "تَفْعَلِينَ ← تو (پسر) انجام می‌دهی.", "فَعَلْتُ ← من انجام می‌دهم."], ans: 0 },
+            { stage: "🔴 مرحله ۳ | چالش بزرگ 🏆", pts: 30, q: "در جمله «أَنْتَ تَحْفَظُ الْقُرْآنَ جَيِّدًا»، فاعل چه کسی است؟", opts: ["من", "تو (پسر)", "تو (دختر)", "او"], ans: 1 },
+            { stage: "🔴 مرحله ۳ | چالش بزرگ 🏆", pts: 30, q: "کدام گزینه زمان «حال یا آینده» را نشان می‌دهد؟", opts: ["فَعَلْتُ", "فَعَلْتَ", "أَفْعَلُ", "فَعَلَ"], ans: 2 },
+            { stage: "🔴 مرحله ۳ | چالش بزرگ 🏆", pts: 30, q: "🏆 سؤال طلایی: اگر بخواهیم جمله «من با قلم قرمز می‌نویسم» را به عربی بگوییم، کدام گزینه درست است؟", opts: ["أَنَا تَكْتُبُ بِالْقَلَمِ الْأَحْمَرِ", "أَنَا أَكْتُبُ بِالْقَلَمِ الْأَحْمَرِ", "أَنْتَ أَكْتُبُ بِالْقَلَمِ الْأَحْمَرِ", "أَنَا تَكْتُبِينَ بِالْقَلَمِ الْأَحْمَرِ"], ans: 1 }
+        ];
+
+        const positiveMsgs = [
+            "🎉 آفرین! عالی شکار کردی!", 
+            "👏 فوق‌العاده بود! فعل مضارع را درست پیدا کردی!", 
+            "🌟 عالی! شکارچی مضارع حرفه‌ای شدی!", 
+            "🏆 درست گفتی! یک قدم به پیروزی نزدیک‌تر شدی!", 
+            "🚀 عالی پیش رفتی! ادامه بده!", 
+            "🥳 آفرین قهرمان! پاسخ کاملاً درست بود!"
+        ];
+
+        let currentQIndex = 0;
+        let playerName = "";
+        let scoreTotal = 0;
+        let scoreS1 = 0, scoreS2 = 0, scoreS3 = 0;
+        let countCorrect = 0, countWrong = 0;
+        let timerInterval;
+        let timeLeft = 10;
+        let answeredCorrectly = false;
+
+        const audioBg = document.getElementById('bgMusic');
+        const audioWin = document.getElementById('correctSound');
+        const audioFail = document.getElementById('wrongSound');
+        
+        // متغیرهای سیستم صدای سراسری
+        let isMusicOn = false;
+        const audioBtn = document.getElementById('global-audio-btn');
+        const musicCheck = document.getElementById('musicCheck');
+
+        // تابع یکپارچه برای قطع/وصل صدا (هم برای آیکن هم چک باکس)
+        function toggleMusic() {
+            if(isMusicOn) {
+                audioBg.pause();
+                isMusicOn = false;
+                audioBtn.innerHTML = '🔇';
+                if(musicCheck) musicCheck.checked = false;
+            } else {
+                audioBg.volume = 0.3;
+                audioBg.play().then(() => {
+                    isMusicOn = true;
+                    audioBtn.innerHTML = '🔊';
+                    if(musicCheck) musicCheck.checked = true;
+                }).catch(e => console.log("Play failed", e));
+            }
+        }
+
+        // سینک کردن چک‌باکس با دکمه سراسری
+        musicCheck.addEventListener('change', (e) => {
+            if(e.target.checked && !isMusicOn) {
+                toggleMusic();
+            } else if(!e.target.checked && isMusicOn) {
+                toggleMusic();
+            }
+        });
+
+        function goToPage(pageNum) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(`page-${pageNum}`).classList.add('active');
+            
+            if(pageNum === 3) {
+                if(currentQIndex === 0) renderQuestion(); 
+            }
+        }
+
+        function startGame() {
+            const input = document.getElementById('studentName').value.trim();
+            if (!input) {
+                alert('لطفا ابتدا نام خود را وارد کنید!');
+                return;
+            }
+            playerName = input;
+            
+            // در صورت زدن دکمه شروع و فعال بودن تیک، موسیقی پخش شود
+            if(musicCheck.checked && !isMusicOn) {
+                audioBg.volume = 0.3;
+                audioBg.play().then(() => {
+                    isMusicOn = true;
+                    audioBtn.innerHTML = '🔊';
+                }).catch(e => console.log(e));
+            }
+            goToPage(2);
+        }
+
+        function renderQuestion() {
+            answeredCorrectly = false;
+            timeLeft = 10;
+            clearInterval(timerInterval);
+            document.getElementById('ui-timer').innerText = timeLeft;
+            document.getElementById('ui-next-btn').style.display = 'none';
+            document.getElementById('ui-feedback').innerHTML = '';
+
+            const qData = questions[currentQIndex];
+            
+            document.getElementById('ui-stage').innerText = qData.stage;
+            document.getElementById('ui-progress').innerText = `سؤال ${currentQIndex + 1} از ۱۵`;
+            document.getElementById('ui-question').innerText = qData.q;
+            document.getElementById('ui-score').innerText = `امتیاز: ${scoreTotal}`;
+
+            const optsContainer = document.getElementById('ui-options');
+            optsContainer.innerHTML = '';
+            
+            qData.opts.forEach((optText, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = optText;
+                btn.onclick = () => checkAnswer(i, btn);
+                optsContainer.appendChild(btn);
+            });
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('ui-timer').innerText = timeLeft;
+                if(timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    audioFail.currentTime = 0;
+                    audioFail.play().catch(e=>{});
+                    document.getElementById('ui-feedback').innerHTML = '<span style="color:#C62828">😅 زمان تمام شد! یکی از گزینه‌ها را انتخاب کن.</span>';
+                }
+            }, 1000);
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (answeredCorrectly) return; 
+            
+            clearInterval(timerInterval); 
+            const qData = questions[currentQIndex];
+            
+            if (selectedIndex === qData.ans) {
+                answeredCorrectly = true;
+                btnElement.classList.add('correct');
+                audioWin.currentTime = 0;
+                audioWin.play().catch(e=>{});
+                
+                const allBtns = document.getElementById('ui-options').querySelectorAll('.option-btn');
+                allBtns.forEach(b => { if(b !== btnElement) b.disabled = true; });
+
+                const msg = positiveMsgs[Math.floor(Math.random() * positiveMsgs.length)];
+                document.getElementById('ui-feedback').innerHTML = `<span style="color:#2E7D32">${msg} 👏🎉</span>`;
+                document.getElementById('ui-next-btn').style.display = 'block'; // دکمه حالا بالاتر و کاملا در دسترس است
+
+                countCorrect++;
+                scoreTotal += qData.pts;
+                if(currentQIndex < 5) scoreS1 += qData.pts;
+                else if(currentQIndex < 10) scoreS2 += qData.pts;
+                else scoreS3 += qData.pts;
+                
+                document.getElementById('ui-score').innerText = `امتیاز: ${scoreTotal}`;
+
+            } else {
+                btnElement.classList.add('wrong');
+                btnElement.disabled = true;
+                audioFail.currentTime = 0;
+                audioFail.play().catch(e=>{});
+                countWrong++;
+                document.getElementById('ui-feedback').innerHTML = '<span style="color:#C62828">😅 دوباره تلاش کن!</span>';
+            }
+        }
+
+        function nextQuestion() {
+            currentQIndex++;
+            if (currentQIndex < questions.length) {
+                renderQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            goToPage(4);
+            document.getElementById('res-name').innerText = playerName;
+            document.getElementById('res-total').innerText = scoreTotal;
+            
+            document.getElementById('res-s1').innerText = `${scoreS1} / ۵۰`;
+            document.getElementById('res-s2').innerText = `${scoreS2} / ۱۰۰`;
+            document.getElementById('res-s3').innerText = `${scoreS3} / ۱۵۰`;
+            
+            document.getElementById('res-correct').innerText = countCorrect;
+            document.getElementById('res-wrong').innerText = countWrong;
+            
+            const percent = Math.round((scoreTotal / 300) * 100);
+            document.getElementById('res-percent').innerText = `${percent}٪`;
+
+            let msg = "";
+            if(percent === 100) msg = "🏆 بی‌نظیر بود! تو یک شکارچی مضارع افسانه‌ای هستی!";
+            else if(percent >= 80) msg = "🌟 عالی بود! تسلط خیلی خوبی روی فعل مضارع داری.";
+            else if(percent >= 50) msg = "👍 خوب بود! اما با کمی تمرین بیشتر می‌تونی بی‌نقص باشی.";
+            else msg = "💪 ناامید نشو! درسنامه را دوباره مرور کن و دوباره تلاش کن.";
+            
+            document.getElementById('res-msg').innerText = msg;
+        }
+
+        function restartGame() {
+            currentQIndex = 0;
+            scoreTotal = 0;
+            scoreS1 = 0; scoreS2 = 0; scoreS3 = 0;
+            countCorrect = 0; countWrong = 0;
+            document.getElementById('studentName').value = "";
+            goToPage(1);
+        }
+    </script>
+</body>
+</html>
